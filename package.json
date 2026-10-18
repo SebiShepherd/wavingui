@@ -1,0 +1,72 @@
+{
+  "name": "@wavingeye/ui",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The interface layer every WavingEye product shares: theme, tokens, fonts, components and the rules that bound them.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SebiShepherd/wavingui.git"
+  },
+  "files": [
+    "dist",
+    "css",
+    "theme-init.js",
+    "skills",
+    "docs/rules",
+    "tools"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./wavingui.css": "./css/wavingui.css",
+    "./theme-init.js": "./theme-init.js"
+  },
+  "sideEffects": [
+    "*.css",
+    "./theme-init.js"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "gallery": "vite gallery",
+    "gallery:build": "vite build gallery",
+    "e2e": "playwright test",
+    "baselines": "RUN_VISUAL=1 playwright test --grep @visual --update-snapshots",
+    "gates": "node gates/run.mjs",
+    "check": "npm run typecheck && npm run build && npm test && npm run gates"
+  },
+  "peerDependencies": {
+    "lucide-react": "^1.18.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@tailwindcss/vite": "^4.3.1",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "16.3.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^6.0.0",
+    "@wavingeye/brand": "github:SebiShepherd/wavingbrand#v0.1.0",
+    "jsdom": "~22.1.0",
+    "lucide-react": "^1.18.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sharp": "^0.35.5",
+    "tailwindcss": "^4.3.1",
+    "typescript": "~5.9.3",
+    "vite": "^8.0.0",
+    "vitest": "~4.1.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

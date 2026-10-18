@@ -1,7 +1,7 @@
 # Spec 0001: the kit
 
-Status: **draft, awaiting sponsor review.** Nothing is built before this is
-approved.
+Status: **approved 2026-10-18.** Question 1 answered (a), question 2 answered
+(b), both as recommended.
 
 Inputs: [`../research/outward.md`](../research/outward.md) (what the reference
 kits do) and [`../research/inward.md`](../research/inward.md) (what Hikaru has).
@@ -221,3 +221,26 @@ is settled by the research unless you overrule it.
    shared. Recommendation: **(b)**, because it costs one input file per product
    and lets KYL be told apart from Hikaru at a glance, while everything that
    makes the screens work stays identical.
+
+## v1 as built
+
+Recorded against the capability table, so a reader can see what the first
+build covered and what it moved.
+
+- **Built:** T1 to T3, T5, T6 (Paper kept, `subtle` fixed to the solver's
+  values), C1 to C9, C10 for HexColorPicker, S1 to S4, G1 to G4, G6, G7,
+  R1 to R6, D1 to D4.
+- **Narrowed, T4:** only the scrim became a role (`--color-scrim`). The tooltip
+  is the inverted `fg` on `bg` pair, and the focus indicator is `accent`, which
+  the link floor already holds to 4.5:1; naming either would add a token with
+  one use. Keyboard focus is checked on the running gallery instead.
+- **Narrowed, T7:** the z-order is written down (README) rather than tokenised.
+  Tailwind's `z-*` utilities do not read a theme namespace, so a token would
+  need a custom utility per layer for five values.
+- **Moved to a follow-up:** SelectMenu, FilterMenu and SectionForm (the rest of
+  C10) and axe on the gallery (G5).
+- **Fixed on the way:** a colour picker standing open from the start chose its
+  direction from the scroll position, so in a longer gallery it opened upward
+  over the section above. A panel opened by nobody now always opens down.
+- **Not portable from Hikaru:** the action-budget test and the menu-width test
+  exercised Hikaru's own bulk bar and assignee picker. They stay in Hikaru.

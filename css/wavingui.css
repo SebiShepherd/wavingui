@@ -1,0 +1,426 @@
+@import 'tailwindcss';
+
+/*
+ * wavingui: the theme "Paper" and everything a component in this kit assumes.
+ *
+ * A product imports this file instead of `tailwindcss` and gets the theme, the
+ * motion utilities, the classes the components use and the fonts. Light is the
+ * default and dark is an override on `.dark`, which the product puts on <html>
+ * (see `theme-init.js`). Components name roles and nothing else, so re-theming
+ * is an edit here, and a product that wants its own accent overrides the five
+ * accent roles after this import; nothing else is a product's to change.
+ *
+ * Carried over from Hikaru, where the theme was learned. The token names are
+ * the role vocabulary of @wavingeye/brand, and `tools/check-theme.mjs` holds
+ * every pair this file paints to that vocabulary's floors.
+ */
+
+/* Tailwind finds class names in the files it scans, and it skips node_modules.
+   This points it at the kit's own components wherever the kit is installed,
+   so a product does not have to know where the class strings live. */
+@source '../dist';
+
+/* Class strategy: the shell puts `dark` on <html> from the stored preference,
+   so `dark:` utilities and the override block below act on the same switch. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Self-hosted, because the app is deployed on a single VPS behind a proxy and a
+   second origin for two fonts is a second thing that can be slow, blocked or
+   down. Latin and latin-ext only: the product is written in those. */
+@font-face {
+  font-family: 'Instrument Sans';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('./fonts/instrument-sans-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Instrument Sans';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('./fonts/instrument-sans-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./fonts/ibm-plex-mono-400-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./fonts/ibm-plex-mono-400-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./fonts/ibm-plex-mono-500-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('./fonts/ibm-plex-mono-500-latin-ext.woff2') format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@theme {
+  /*
+   * No default palette. `bg-red-500` would be a colour outside the theme, which
+   * is the one thing a component here must never paint, so the utilities do not
+   * exist. White and black stay, for the colour picker's own chrome.
+   */
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  --color-brand-navy: #101554;
+
+  /*
+   * The company mark's tile, and the mark inside it.
+   *
+   * Two tokens rather than a file, because the mark is inlined (`BrandMark`)
+   * and takes `currentColor`. A navy tile is right on a light page and wrong on
+   * a dark one: against `--color-surface` in dark it is 1.01:1, so it has no
+   * edge and the glyph inside floats. The pair inverts below.
+   *
+   * The brand's rule is that whatever renders the mark clears 3:1 against every
+   * surface it lands on; `tools/check-theme.mjs` reads these two out of this
+   * file and checks it.
+   */
+  --color-brand-tile: var(--color-brand-navy);
+  --color-brand-tile-on: #ffffff;
+
+  /* Accent: one blue, used sparingly - active navigation, the primary button,
+     links, and the unread dot. Not for decoration. */
+  --color-accent: #2b5ce6;
+  --color-accent-strong: #1e45b4;
+  --color-accent-soft: #7e9cff;
+  /* Text/icons ON an accent fill. It was hard-coded `text-white`, which is
+     wrong the moment the accent is light (see the dark override). */
+  --color-accent-on: #ffffff;
+  /* The tinted accent surface: active queue rows, status pills, selected rows.
+     Replaces the `bg-accent/15` opacity trick, which stacked unpredictably on
+     top of raised surfaces. */
+  --color-accent-wash: #eaf0ff;
+
+  /* Warm off-white page, white panels. The warmth is what keeps a light,
+     dense inbox from reading as clinical. */
+  --color-bg: #fbfaf8;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f3f1ed;
+  /* One step above `surface-raised`, for things that float over the page. */
+  --color-overlay: #ffffff;
+  --color-border: #e6e2db;
+
+  --color-fg: #1a1a18;
+  --color-muted: #5f5a52;
+  /* #8f8a81 in Hikaru was 3.04:1 on surface-raised (hikaru#592). These are the
+     brand solver's values for the role, which clear 4.5:1 on every surface. */
+  --color-subtle: #736d64;
+  /* Chrome only, never text that carries meaning. */
+  --color-faint: #b3aea5;
+
+  --color-success: #177a5b;
+  --color-warning: #946200;
+  --color-danger: #c0392b;
+  /* Tinted backgrounds for the badges that use those hues, so a badge is one
+     token pair rather than a hue plus an opacity guess. */
+  --color-success-wash: #e3f5ec;
+  --color-warning-wash: #fdf0dc;
+  --color-danger-wash: #fee9e7;
+
+  /* What dims the page behind a dialog. A role rather than `bg-fg/45` in each
+     dialog, so every overlay dims by the same amount in both themes. */
+  --color-scrim: color-mix(in srgb, var(--color-fg) 45%, transparent);
+
+  /* Skeletons. Two stops: the resting block and the sweep. */
+  --color-skeleton: #f1efea;
+  --color-skeleton-sweep: #e4e0d8;
+
+  /* Elevation. Paper separates with a soft shadow where the old theme drew a
+     border; borders stay for structural edges (pane dividers, table rules). */
+  --shadow-card: 0 1px 2px rgb(26 26 24 / 0.06), 0 8px 24px rgb(26 26 24 / 0.05);
+  --shadow-popover: 0 12px 32px rgb(26 26 24 / 0.14);
+  --shadow-bar: 0 14px 40px rgb(26 26 24 / 0.22);
+
+  /* Radius scale. Rounder than before: pills for buttons and filters, 14px for
+     cards, conversation bubbles and floating bars. */
+  --radius-field: 0.75rem;
+  --radius-card: 0.875rem;
+  /* Message bubbles; budgeted in the theme rules and now a token. */
+  --radius-bubble: 1rem;
+  --radius-pill: 9999px;
+
+  /* Motion. One easing, three durations - press, panel, overlay. */
+  --ease-out-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration-press: 140ms;
+  --duration-panel: 240ms;
+  --duration-overlay: 200ms;
+
+  --font-sans:
+    'Instrument Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/*
+ * Dark. Same names, different values - no component knows which set is active.
+ * The accent lightens and `accent-on` flips to near-black, because a saturated
+ * blue button with white text is unreadable on a dark surface.
+ */
+.dark {
+  /* Inverted, so the tile keeps an edge: 15.6:1 against --color-surface here,
+     where navy was 1.01:1. */
+  --color-brand-tile: #ffffff;
+  --color-brand-tile-on: var(--color-brand-navy);
+
+  --color-accent: #7e9cff;
+  --color-accent-strong: #9db3ff;
+  --color-accent-soft: #b7c7ff;
+  --color-accent-on: #12151f;
+  --color-accent-wash: #1e2540;
+
+  --color-bg: #14151a;
+  --color-surface: #1b1d23;
+  --color-surface-raised: #23262e;
+  --color-overlay: #23262e;
+  --color-border: #2c3038;
+
+  --color-fg: #f2f3f6;
+  --color-muted: #a9aeba;
+  --color-subtle: #888c99;
+  --color-faint: #5c606b;
+
+  --color-success: #6fd8ae;
+  --color-warning: #e8b45c;
+  --color-danger: #f98a80;
+  --color-success-wash: #1f3830;
+  --color-warning-wash: #3a3120;
+  --color-danger-wash: #3a2222;
+
+  --color-skeleton: #23262e;
+  --color-skeleton-sweep: #2c3038;
+
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.35);
+  --shadow-popover: 0 12px 32px rgb(0 0 0 / 0.5);
+  --shadow-bar: 0 14px 40px rgb(0 0 0 / 0.55);
+
+  color-scheme: dark;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+/* Native controls still render the OS accent otherwise. */
+input[type='checkbox'],
+input[type='radio'] {
+  accent-color: var(--color-accent);
+}
+
+/* The number spinner is browser chrome in raw greys and only appears on focus,
+   which reads as a glitch on a themed field. The value is still typeable and
+   the arrow keys still work. */
+input[type='number'] {
+  appearance: textfield;
+}
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * The three motion steps, as utilities rather than as a number copied into each
+ * `transition-*`: press for anything under the pointer, panel for a pane or a
+ * list changing shape, overlay for something opening over the screen. A fourth
+ * duration is a decision, and a decision belongs in this file.
+ */
+@utility transition-press {
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+  transition-timing-function: var(--ease-out-soft);
+  transition-duration: var(--duration-press);
+}
+
+@utility transition-panel {
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+  transition-timing-function: var(--ease-out-soft);
+  transition-duration: var(--duration-panel);
+}
+
+@utility transition-overlay {
+  transition-property: opacity, transform;
+  transition-timing-function: var(--ease-out-soft);
+  transition-duration: var(--duration-overlay);
+}
+
+/* Skeletons: the queue, the table and the cards all show the shape of what is
+   coming, so the sweep is defined once here rather than per surface. Only for
+   waits the shell expects to exceed ~300ms; below that a plain fade is less
+   noisy than a flash of placeholder. */
+@keyframes wui-skeleton {
+  from {
+    background-position: -360px 0;
+  }
+  to {
+    background-position: 360px 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-skeleton) 25%,
+    var(--color-skeleton-sweep) 37%,
+    var(--color-skeleton) 63%
+  );
+  background-size: 360px 100%;
+  animation: wui-skeleton 1.4s linear infinite;
+  border-radius: 0.375rem;
+}
+
+/* Rows and cards enter with a short rise; the stagger is set per item with an
+   inline `animation-delay` (40ms steps, capped at ~6 items). */
+@keyframes wui-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise {
+  animation: wui-rise var(--duration-panel) var(--ease-out-soft) both;
+}
+
+/* A panel that replaces another one fades in rather than cutting: the workspace
+   swaps its right-hand pane on every pick, and a cut there reads as a reload. */
+@keyframes wui-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: wui-fade-in var(--duration-overlay) var(--ease-out-soft) both;
+}
+
+/* An overlay grows the last few percent into place instead of appearing at full
+   size, which is what makes a dialog read as opened rather than as already
+   there. */
+@keyframes wui-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.pop-in {
+  animation: wui-pop-in var(--duration-overlay) var(--ease-out-soft) both;
+}
+
+/* The undo bar in a toast: time left, as a line that runs out. */
+@keyframes wui-drain {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+.drain {
+  transform-origin: left;
+  animation: wui-drain linear forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/**
+ * Text centred on its letters rather than on its line box.
+ *
+ * `items-center` centres the *line box*, and a line box is the font's ascent
+ * plus its descent - which for this family is not symmetric about the letters
+ * inside it. Every fixed-height control that holds a word therefore renders it
+ * a fraction high: measured at ten times scale, the label in a 30px pill sat
+ * 7.5px below the top and 8.5px above the bottom. Nobody can name that from a
+ * screenshot; everybody can see that the control looks slightly off.
+ *
+ * `text-box` trims the half-leading to the cap height and the alphabetic
+ * baseline, so what gets centred is the ink. This is the mechanism the CSS
+ * working group added for exactly this, and it is why the alternative - a
+ * per-component translate measured by hand - is not used here: there is one
+ * font, one rule, and no numbers to keep in comments.
+ *
+ * Behind `@supports` because a browser without it must keep today's rendering
+ * rather than lose the label's box: this is a fraction of a pixel of polish,
+ * not a layout.
+ *
+ * https://developer.mozilla.org/en-US/docs/Web/CSS/text-box
+ */
+@supports (text-box: trim-both cap alphabetic) {
+  .optical-center {
+    text-box: trim-both cap alphabetic;
+  }
+}

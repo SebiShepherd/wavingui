@@ -1,0 +1,38 @@
+name: kit
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  check:
+    name: typecheck · build · unit · gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # Typecheck, build, unit specs, then the gates: the theme against the
+      # brand's floors, the palette reset, dist/ against a fresh build, and the
+      # UI-text rule.
+      - run: npm run check
+
+  gallery:
+    name: gallery e2e
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      # The built gallery under the runtime CSP, offline, with the state checks.
+      # Visual baselines stay opt-in (RUN_VISUAL=1): they were rendered on one
+      # machine and another machine's rasteriser would only add noise.
+      - run: npm run e2e

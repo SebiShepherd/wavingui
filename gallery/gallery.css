@@ -1,0 +1,5 @@
+@import '../css/wavingui.css';
+
+/* The gallery renders the kit from source, so Tailwind scans the source too. */
+@source '../src';
+@source './';
