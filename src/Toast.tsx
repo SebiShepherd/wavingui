@@ -1,6 +1,7 @@
-import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Undo2, X } from 'lucide-react';
 import { useLabels } from './labels';
+import { usePresence } from './Dialog';
 
 /** How long an actionable toast stays. */
 const LIFETIME_MS = 6_000;
@@ -40,11 +41,14 @@ export function Toast({
   undo,
   action,
   onDismiss,
+  leaving = false,
 }: {
   readonly message: string;
   readonly undo?: (() => void) | undefined;
   readonly action?: { readonly label: string; readonly run: () => void } | undefined;
   readonly onDismiss: () => void;
+  /** Playing its exit; set by the provider between dismissal and unmount. */
+  readonly leaving?: boolean;
 }) {
   const L = useLabels();
   const offered = undo ? null : action;
@@ -52,7 +56,7 @@ export function Toast({
     <div
       role="status"
       aria-live="polite"
-      className="pop-in pointer-events-auto min-w-[280px] overflow-hidden rounded-card border border-border bg-overlay px-3.5 py-2.5 shadow-bar"
+      className={`${leaving ? 'pop-out' : 'pop-in'} pointer-events-auto min-w-[280px] overflow-hidden rounded-card border border-border bg-overlay px-3.5 py-2.5 shadow-bar`}
     >
       <div className="flex items-center gap-3">
         <span className="text-sm text-fg">{message}</span>
@@ -112,6 +116,11 @@ export function Toast({
  */
 export function ToastProvider({ children }: { readonly children: ReactNode }) {
   const [toast, setToast] = useState<ToastState | null>(null);
+  // The toast just dismissed, drawn while its exit runs.
+  const last = useRef<ToastState | null>(null);
+  if (toast) last.current = toast;
+  const { mounted, leaving } = usePresence(toast !== null);
+  const current = toast ?? last.current;
 
   const show = useCallback((request: ToastRequest) => {
     setToast({ ...request, id: Date.now() });
@@ -126,7 +135,7 @@ export function ToastProvider({ children }: { readonly children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ show }}>
       {children}
-      {toast && (
+      {mounted && current && (
         // Out of the floating bar's way, which it used to sit exactly on top
         // of: both are bottom-centred, so a confirmation covered the "Set
         // status" and "Tag" buttons of the very bulk bar that raised it, while
@@ -142,27 +151,28 @@ export function ToastProvider({ children }: { readonly children: ReactNode }) {
         // that changed its mind.
         <div className="pointer-events-none fixed inset-x-0 bottom-20 z-50 flex justify-center px-4 sm:justify-end sm:pr-6">
           <Toast
-            message={toast.message}
+            message={current.message}
             undo={
-              toast.undo
+              current.undo
                 ? () => {
-                    toast.undo?.();
+                    current.undo?.();
                     setToast(null);
                   }
                 : undefined
             }
             action={
-              toast.action
+              current.action
                 ? {
-                    label: toast.action.label,
+                    label: current.action.label,
                     run: () => {
-                      toast.action?.run();
+                      current.action?.run();
                       setToast(null);
                     },
                   }
                 : undefined
             }
             onDismiss={() => setToast(null)}
+            leaving={leaving}
           />
         </div>
       )}

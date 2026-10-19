@@ -25,6 +25,7 @@ import {
   CardTitle,
   Checkbox,
   ConfirmDialog,
+  Dialog,
   FIELD_INPUT,
   FIELD_INVALID,
   FILTER_PILL,
@@ -101,6 +102,7 @@ export function Gallery() {
   const [unsetColor, setUnsetColor] = useState('');
   const [checked, setChecked] = useState(true);
   const [confirming, setConfirming] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const toast = useToast();
   const noop = () => undefined;
   useThemeSync(theme);
@@ -205,16 +207,43 @@ export function Gallery() {
         <Button variant="danger" onClick={() => setConfirming(true)}>
           Delete limit
         </Button>
-        {confirming && (
-          <ConfirmDialog
-            title="Delete this limit?"
-            body="Its history goes with it. This cannot be undone."
-            confirmLabel="Delete limit"
-            destructive
-            onConfirm={() => setConfirming(false)}
-            onCancel={() => setConfirming(false)}
-          />
-        )}
+        <ConfirmDialog
+          open={confirming}
+          title="Delete this limit?"
+          body="Its history goes with it. This cannot be undone."
+          confirmLabel="Delete limit"
+          destructive
+          onConfirm={() => setConfirming(false)}
+          onCancel={() => setConfirming(false)}
+        />
+      </Section>
+
+      <Section
+        title="Dialog"
+        note="A task in a modal: title, body and the buttons that end it. Opens and closes with a motion; Escape and the backdrop close it."
+      >
+        <Button variant="secondary" onClick={() => setDialogOpen(true)}>
+          Lock for a while
+        </Button>
+        <Dialog
+          open={dialogOpen}
+          title="Lock with a timer"
+          onClose={() => setDialogOpen(false)}
+          footer={
+            <>
+              <Button variant="ghost" onClick={() => setDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={() => setDialogOpen(false)}>
+                Lock for 1 hour
+              </Button>
+            </>
+          }
+        >
+          <p className="mt-2.5 text-sm leading-relaxed text-muted">
+            Until the timer runs out, the block can be tightened and not loosened.
+          </p>
+        </Dialog>
       </Section>
 
       <Section

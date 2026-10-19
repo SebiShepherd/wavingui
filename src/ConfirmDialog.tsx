@@ -1,9 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Button } from './Button';
-import { useModalPresence } from './modal';
+import { Dialog } from './Dialog';
 
 interface ConfirmDialogProps {
+  /** Rendered with `false`, it plays its exit and then unmounts. */
+  readonly open?: boolean;
   readonly title: string;
   /** What will happen, in words, including anything that cannot be undone. */
   readonly body: string;
@@ -29,6 +31,7 @@ interface ConfirmDialogProps {
  * destroy anything.
  */
 export function ConfirmDialog({
+  open = true,
   title,
   body,
   confirmLabel,
@@ -38,49 +41,27 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
-  useModalPresence();
   const cancelRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    cancelRef.current?.focus();
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') onCancel();
-    }
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [onCancel]);
-
   return (
-    <div
-      className="fixed inset-0 z-50 grid place-items-center bg-scrim p-4"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onCancel();
-      }}
-    >
-      <div
-        role="alertdialog"
-        aria-modal="true"
-        aria-label={title}
-        className="pop-in w-full max-w-md rounded-[18px] border border-border bg-overlay p-6 shadow-popover"
-      >
-        <div className="flex items-start gap-3">
-          {destructive && (
-            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-danger" aria-hidden />
-          )}
-          <div>
-            <h2 className="text-[17px] font-semibold text-fg">{title}</h2>
-            <p className="mt-2.5 text-sm leading-relaxed text-muted">{body}</p>
-          </div>
-        </div>
-        <div className="mt-6 flex items-center justify-end gap-2.5">
+    <Dialog
+      open={open}
+      role="alertdialog"
+      title={title}
+      onClose={onCancel}
+      initialFocus={cancelRef}
+      leading={destructive ? <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-danger" aria-hidden /> : undefined}
+      footer={
+        <>
           <Button ref={cancelRef} variant="secondary" onClick={onCancel}>
             {cancelLabel}
           </Button>
           <Button variant={destructive ? 'danger' : 'primary'} disabled={busy} onClick={onConfirm}>
             {busy ? 'Working…' : confirmLabel}
           </Button>
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    >
+      <p className="mt-2.5 text-sm leading-relaxed text-muted">{body}</p>
+    </Dialog>
   );
 }

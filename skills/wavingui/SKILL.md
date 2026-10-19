@@ -70,5 +70,6 @@ version. The rules it summarises live in full beside it, in
 | Status | `Badge` |
 | Selection and bulk actions | `Checkbox`, `AvatarSelector`, `ActionBar`, `FloatingBar` |
 | Feedback | `Toast` with `useToast`, `ConfirmDialog`, `Skeleton*` |
+| A modal task | `Dialog` (open and close with a motion), `usePresence` for an overlay of your own |
 | People | `Avatar`, `Person` |
 | Brand mark | `BrandMark` with `mark` from `@wavingeye/brand/<product>/paths.json` |
