@@ -24,10 +24,13 @@ describe('Dialog', () => {
     expect(screen.getByRole('dialog').className).toContain('pop-out');
 
     // Not cut off by a clock: an engine that starts the exit late still shows
-    // all of it (wavingui#4). The exit's own end removes the dialog.
+    // all of it (wavingui#4). The exit's own end removes the dialog, one
+    // overlay duration later, for a compositor that paints behind the clock.
     act(() => void vi.advanceTimersByTime(200));
     expect(screen.getByRole('dialog').className).toContain('pop-out');
     fireEvent.animationEnd(screen.getByRole('dialog'));
+    expect(screen.getByRole('dialog')).toBeTruthy();
+    act(() => void vi.advanceTimersByTime(200));
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 

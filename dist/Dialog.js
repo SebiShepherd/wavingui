@@ -10,6 +10,16 @@ import { useDialogFocus, useModalPresence } from './modal';
  */
 const EXIT_FALLBACK_MS = 1000;
 /**
+ * How long an overlay stays mounted after its exit reports its end. WebKitGTK
+ * runs opacity on its compositor and paints it up to about 150 ms behind the
+ * page's own clock, so `animationend` arrives while the overlay is still drawn
+ * at seven tenths, and removing it then reads as a cut (wavingui#4, measured
+ * per frame in WebKitGTK and in a recording of the shipped shell). It is
+ * invisible by the page's clock and takes no pointer meanwhile, so waiting one
+ * more overlay duration costs nothing a person can see.
+ */
+const EXIT_SETTLE_MS = 200;
+/**
  * Keep an overlay on screen until its exit has run.
  *
  * A dialog or toast that unmounts the moment it closes vanishes without the
@@ -31,9 +41,20 @@ export function usePresence(open) {
         const timer = window.setTimeout(() => setMounted(false), reduced ? 0 : EXIT_FALLBACK_MS);
         return () => window.clearTimeout(timer);
     }, [open]);
+    const [ended, setEnded] = useState(false);
+    useEffect(() => {
+        if (open || !ended)
+            return;
+        const timer = window.setTimeout(() => setMounted(false), EXIT_SETTLE_MS);
+        return () => window.clearTimeout(timer);
+    }, [open, ended]);
+    useEffect(() => {
+        if (open)
+            setEnded(false);
+    }, [open]);
     const onExited = useCallback(() => {
         if (!open)
-            setMounted(false);
+            setEnded(true);
     }, [open]);
     return { mounted: mounted || open, leaving: mounted && !open, onExited };
 }
