@@ -181,6 +181,7 @@
 
   /* Motion. One easing, three durations - press, panel, overlay. */
   --ease-out-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-soft: cubic-bezier(0.8, 0.2, 0.8, 0.2);
   --duration-press: 140ms;
   --duration-panel: 240ms;
   --duration-overlay: 200ms;
@@ -370,6 +371,46 @@ body {
 
 .pop-in {
   animation: wui-pop-in var(--duration-overlay) var(--ease-out-soft) both;
+}
+
+/* The way out mirrors the way in: an overlay that appears with a motion and
+   vanishes without one reads as cut off. Same duration, reversed easing, so the
+   exit starts quickly and settles out of sight. `usePresence` keeps the element
+   mounted until it has run. */
+@keyframes wui-pop-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+.pop-out {
+  animation: wui-pop-out var(--duration-overlay) var(--ease-in-soft) both;
+}
+
+/* A scrim fades with the overlay it dims, in and out. */
+@keyframes wui-scrim-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes wui-scrim-out {
+  to {
+    opacity: 0;
+  }
+}
+
+.scrim-in {
+  animation: wui-scrim-in var(--duration-overlay) var(--ease-out-soft) both;
+}
+
+.scrim-out {
+  animation: wui-scrim-out var(--duration-overlay) var(--ease-in-soft) both;
 }
 
 /* The undo bar in a toast: time left, as a line that runs out. */

@@ -1,4 +1,6 @@
 interface ConfirmDialogProps {
+    /** Rendered with `false`, it plays its exit and then unmounts. */
+    readonly open?: boolean;
     readonly title: string;
     /** What will happen, in words, including anything that cannot be undone. */
     readonly body: string;
@@ -22,5 +24,5 @@ interface ConfirmDialogProps {
  * the backdrop cancel; focus starts on Cancel so an accidental Enter does not
  * destroy anything.
  */
-export declare function ConfirmDialog({ title, body, confirmLabel, cancelLabel, destructive, busy, onConfirm, onCancel, }: ConfirmDialogProps): import("react").JSX.Element;
+export declare function ConfirmDialog({ open, title, body, confirmLabel, cancelLabel, destructive, busy, onConfirm, onCancel, }: ConfirmDialogProps): import("react").JSX.Element;
 export {};

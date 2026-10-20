@@ -137,6 +137,20 @@ test.describe('the gallery', () => {
     const box = await items.first().boundingBox();
     expect(box?.width ?? 0, 'the menu has no width where it opened').toBeGreaterThan(0);
   });
+
+  test('a dialog leaves with a motion, then is gone (wavingui#1)', async ({ page }) => {
+    await openGallery(page);
+    const opener = page.getByRole('button', { name: 'Lock for a while' });
+    await opener.scrollIntoViewIfNeeded();
+    await opener.click();
+    const dialog = page.getByRole('dialog', { name: 'Lock with a timer' });
+    await expect(dialog).toBeVisible();
+    await page.keyboard.press('Escape');
+    // Still drawn, running its exit, the moment it is closed.
+    await expect(dialog).toHaveClass(/pop-out/);
+    await expect(dialog).toHaveCount(0);
+    await expect(opener, 'focus did not return to what opened it').toBeFocused();
+  });
 });
 
 test.describe('text sits in the middle of its control', () => {
