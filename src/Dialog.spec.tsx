@@ -23,7 +23,18 @@ describe('Dialog', () => {
     rerender(dialog(false));
     expect(screen.getByRole('dialog').className).toContain('pop-out');
 
+    // Not cut off by a clock: an engine that starts the exit late still shows
+    // all of it (wavingui#4). The exit's own end removes the dialog.
     act(() => void vi.advanceTimersByTime(200));
+    expect(screen.getByRole('dialog').className).toContain('pop-out');
+    fireEvent.animationEnd(screen.getByRole('dialog'));
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('an exit that never reports its end is removed after a second', () => {
+    const { rerender } = render(dialog(true));
+    rerender(dialog(false));
+    act(() => void vi.advanceTimersByTime(1000));
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 

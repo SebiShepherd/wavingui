@@ -42,6 +42,7 @@ export function Toast({
   action,
   onDismiss,
   leaving = false,
+  onExited,
 }: {
   readonly message: string;
   readonly undo?: (() => void) | undefined;
@@ -49,6 +50,8 @@ export function Toast({
   readonly onDismiss: () => void;
   /** Playing its exit; set by the provider between dismissal and unmount. */
   readonly leaving?: boolean;
+  /** Called when the exit animation has ended. */
+  readonly onExited?: () => void;
 }) {
   const L = useLabels();
   const offered = undo ? null : action;
@@ -56,6 +59,9 @@ export function Toast({
     <div
       role="status"
       aria-live="polite"
+      onAnimationEnd={(event) => {
+        if (leaving && event.target === event.currentTarget) onExited?.();
+      }}
       className={`${leaving ? 'pop-out' : 'pop-in'} pointer-events-auto min-w-[280px] overflow-hidden rounded-card border border-border bg-overlay px-3.5 py-2.5 shadow-bar`}
     >
       <div className="flex items-center gap-3">
@@ -119,7 +125,7 @@ export function ToastProvider({ children }: { readonly children: ReactNode }) {
   // The toast just dismissed, drawn while its exit runs.
   const last = useRef<ToastState | null>(null);
   if (toast) last.current = toast;
-  const { mounted, leaving } = usePresence(toast !== null);
+  const { mounted, leaving, onExited } = usePresence(toast !== null);
   const current = toast ?? last.current;
 
   const show = useCallback((request: ToastRequest) => {
@@ -173,6 +179,7 @@ export function ToastProvider({ children }: { readonly children: ReactNode }) {
             }
             onDismiss={() => setToast(null)}
             leaving={leaving}
+            onExited={onExited}
           />
         </div>
       )}
