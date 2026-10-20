@@ -30,6 +30,13 @@ export interface SplitButtonOption {
     /** Marked with a tick and not offered as a change. */
     readonly current?: boolean;
     readonly disabled?: boolean;
+    /**
+     * `danger` for the one option that undoes what the control is for (removing
+     * a lock from a lock control): drawn in the danger colour below a rule, with
+     * its icon in the tick's place, so it is not read as one more value.
+     */
+    readonly tone?: 'danger';
+    readonly icon?: ReactNode;
 }
 interface SplitButtonProps {
     /** The wide half: what the screen thinks you want. */

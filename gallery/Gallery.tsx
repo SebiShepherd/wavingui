@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   Tag,
   Trash2,
+  LockOpen,
 } from 'lucide-react';
 import wavingeye from '@wavingeye/brand/wavingeye/paths.json';
 import {
@@ -85,6 +86,17 @@ const STATUS_OPTIONS = [
   { value: 'pending', label: 'Pending' },
   { value: 'resolved', label: 'Resolved' },
   { value: 'closed', label: 'Closed' },
+];
+
+const LOCK_OPTIONS = [
+  { value: 'timer', label: 'Timer', description: 'Cannot be loosened until it runs out' },
+  { value: 'text', label: 'Random text', description: 'Loosening means typing a random text', current: true },
+  {
+    value: 'remove',
+    label: 'Remove the lock',
+    tone: 'danger' as const,
+    icon: <LockOpen className="h-3.5 w-3.5" />,
+  },
 ];
 
 function readTheme(): ThemeChoice {
@@ -348,6 +360,14 @@ export function Gallery() {
             menuLabel="Other statuses"
             groupLabel="Status"
             options={STATUS_OPTIONS}
+            onSelect={noop}
+          />
+          <SplitButton
+            label="Lock"
+            onClick={noop}
+            menuLabel="Lock with"
+            groupLabel="Lock"
+            options={LOCK_OPTIONS}
             onSelect={noop}
           />
           <span className="text-xs text-subtle">

@@ -15,5 +15,7 @@ export function SplitButton({ label, icon, onClick, disabled = false, menuLabel,
                             setOpen(false);
                             if (!option.current)
                                 onSelect(option.value);
-                        }, className: `${MENU_ITEM} ${option.current ? 'text-fg' : ''} disabled:opacity-45`, children: [_jsx(Check, { className: `h-3.5 w-3.5 shrink-0 ${option.current ? 'text-accent' : 'invisible'}`, "aria-hidden": true }), _jsxs("span", { className: "flex min-w-0 flex-col items-start", children: [_jsx("span", { className: "truncate", children: option.label }), option.description && (_jsx("span", { className: "text-[11px] font-normal leading-tight text-subtle", children: option.description }))] })] }, option.value)))] }))] }));
+                        }, className: `${MENU_ITEM} ${option.current ? 'text-fg' : ''} ${option.tone === 'danger'
+                            ? 'mt-1 rounded-t-none border-t border-border !text-danger hover:bg-danger-wash'
+                            : ''} disabled:opacity-45`, children: [option.icon ? (_jsx("span", { className: "flex h-3.5 w-3.5 shrink-0 items-center justify-center", "aria-hidden": true, children: option.icon })) : (_jsx(Check, { className: `h-3.5 w-3.5 shrink-0 ${option.current ? 'text-accent' : 'invisible'}`, "aria-hidden": true })), _jsxs("span", { className: "flex min-w-0 flex-col items-start", children: [_jsx("span", { className: "truncate", children: option.label }), option.description && (_jsx("span", { className: "text-[11px] font-normal leading-tight text-subtle", children: option.description }))] })] }, option.value)))] }))] }));
 }

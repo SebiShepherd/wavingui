@@ -36,6 +36,13 @@ export interface SplitButtonOption {
   /** Marked with a tick and not offered as a change. */
   readonly current?: boolean;
   readonly disabled?: boolean;
+  /**
+   * `danger` for the one option that undoes what the control is for (removing
+   * a lock from a lock control): drawn in the danger colour below a rule, with
+   * its icon in the tick's place, so it is not read as one more value.
+   */
+  readonly tone?: 'danger';
+  readonly icon?: ReactNode;
 }
 
 interface SplitButtonProps {
@@ -141,12 +148,22 @@ export function SplitButton({
                 setOpen(false);
                 if (!option.current) onSelect(option.value);
               }}
-              className={`${MENU_ITEM} ${option.current ? 'text-fg' : ''} disabled:opacity-45`}
+              className={`${MENU_ITEM} ${option.current ? 'text-fg' : ''} ${
+                option.tone === 'danger'
+                  ? 'mt-1 rounded-t-none border-t border-border !text-danger hover:bg-danger-wash'
+                  : ''
+              } disabled:opacity-45`}
             >
-              <Check
-                className={`h-3.5 w-3.5 shrink-0 ${option.current ? 'text-accent' : 'invisible'}`}
-                aria-hidden
-              />
+              {option.icon ? (
+                <span className="flex h-3.5 w-3.5 shrink-0 items-center justify-center" aria-hidden>
+                  {option.icon}
+                </span>
+              ) : (
+                <Check
+                  className={`h-3.5 w-3.5 shrink-0 ${option.current ? 'text-accent' : 'invisible'}`}
+                  aria-hidden
+                />
+              )}
               <span className="flex min-w-0 flex-col items-start">
                 <span className="truncate">{option.label}</span>
                 {option.description && (
