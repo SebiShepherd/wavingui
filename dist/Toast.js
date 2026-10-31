@@ -11,10 +11,13 @@ const ToastContext = createContext(null);
  * gallery can render both of its states side by side: a component whose only
  * appearance is behind a click is a component nobody reviews.
  */
-export function Toast({ message, undo, action, onDismiss, leaving = false, }) {
+export function Toast({ message, undo, action, onDismiss, leaving = false, onExited, }) {
     const L = useLabels();
     const offered = undo ? null : action;
-    return (_jsxs("div", { role: "status", "aria-live": "polite", className: `${leaving ? 'pop-out' : 'pop-in'} pointer-events-auto min-w-[280px] overflow-hidden rounded-card border border-border bg-overlay px-3.5 py-2.5 shadow-bar`, children: [_jsxs("div", { className: "flex items-center gap-3", children: [_jsx("span", { className: "text-sm text-fg", children: message }), undo && (_jsxs("button", { type: "button", onClick: undo, className: "ml-auto inline-flex items-center gap-1.5 rounded-pill px-2 py-1 text-sm font-semibold text-accent transition-press hover:bg-accent-wash", children: [_jsx(Undo2, { className: "h-4 w-4", "aria-hidden": true }), L.undo] })), offered && (_jsx("button", { type: "button", onClick: offered.run, className: "ml-auto inline-flex items-center gap-1.5 rounded-pill px-2 py-1 text-sm font-semibold text-accent transition-press hover:bg-accent-wash", children: offered.label })), _jsx("button", { type: "button", "aria-label": L.dismiss, onClick: onDismiss, className: `rounded-pill p-1 text-subtle transition-press hover:text-fg ${undo || offered ? '' : 'ml-auto'}`, children: _jsx(X, { className: "h-3.5 w-3.5", "aria-hidden": true }) })] }), undo && (_jsx("span", { "aria-hidden": true, className: "drain mt-2 block h-[3px] rounded-full bg-accent", style: { animationDuration: `${LIFETIME_MS}ms` } }))] }));
+    return (_jsxs("div", { role: "status", "aria-live": "polite", onAnimationEnd: (event) => {
+            if (leaving && event.target === event.currentTarget)
+                onExited?.();
+        }, className: `${leaving ? 'pop-out' : 'pop-in'} pointer-events-auto min-w-[280px] overflow-hidden rounded-card border border-border bg-overlay px-3.5 py-2.5 shadow-bar`, children: [_jsxs("div", { className: "flex items-center gap-3", children: [_jsx("span", { className: "text-sm text-fg", children: message }), undo && (_jsxs("button", { type: "button", onClick: undo, className: "ml-auto inline-flex items-center gap-1.5 rounded-pill px-2 py-1 text-sm font-semibold text-accent transition-press hover:bg-accent-wash", children: [_jsx(Undo2, { className: "h-4 w-4", "aria-hidden": true }), L.undo] })), offered && (_jsx("button", { type: "button", onClick: offered.run, className: "ml-auto inline-flex items-center gap-1.5 rounded-pill px-2 py-1 text-sm font-semibold text-accent transition-press hover:bg-accent-wash", children: offered.label })), _jsx("button", { type: "button", "aria-label": L.dismiss, onClick: onDismiss, className: `rounded-pill p-1 text-subtle transition-press hover:text-fg ${undo || offered ? '' : 'ml-auto'}`, children: _jsx(X, { className: "h-3.5 w-3.5", "aria-hidden": true }) })] }), undo && (_jsx("span", { "aria-hidden": true, className: "drain mt-2 block h-[3px] rounded-full bg-accent", style: { animationDuration: `${LIFETIME_MS}ms` } }))] }));
 }
 /**
  * Feedback for actions that used to ask permission first.
@@ -34,7 +37,7 @@ export function ToastProvider({ children }) {
     const last = useRef(null);
     if (toast)
         last.current = toast;
-    const { mounted, leaving } = usePresence(toast !== null);
+    const { mounted, leaving, onExited } = usePresence(toast !== null);
     const current = toast ?? last.current;
     const show = useCallback((request) => {
         setToast({ ...request, id: Date.now() });
@@ -72,7 +75,7 @@ export function ToastProvider({ children }) {
                                 setToast(null);
                             },
                         }
-                        : undefined, onDismiss: () => setToast(null), leaving: leaving }) }))] }));
+                        : undefined, onDismiss: () => setToast(null), leaving: leaving, onExited: onExited }) }))] }));
 }
 /**
  * Say what just happened. Outside a provider this is a no-op rather than an

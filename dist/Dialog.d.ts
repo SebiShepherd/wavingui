@@ -4,13 +4,16 @@ import { type ReactNode, type RefObject } from 'react';
  *
  * A dialog or toast that unmounts the moment it closes vanishes without the
  * motion it arrived with (wavingui#1). So the caller says whether the overlay
- * is wanted (`open`), and this says whether it is still drawn (`mounted`) and
- * whether it is on its way out (`leaving`, which picks the exit classes). With
- * reduced motion there is nothing to wait for and it unmounts at once.
+ * is wanted (`open`), and this says whether it is still drawn (`mounted`),
+ * whether it is on its way out (`leaving`, which picks the exit classes), and
+ * gives the handler the exiting element calls when its animation ends
+ * (`onExited`). With reduced motion there is nothing to wait for and it
+ * unmounts at once.
  */
 export declare function usePresence(open: boolean): {
     readonly mounted: boolean;
     readonly leaving: boolean;
+    readonly onExited: () => void;
 };
 interface DialogProps {
     /** Whether the dialog is wanted. Rendered with `false`, it plays its exit and then unmounts. */

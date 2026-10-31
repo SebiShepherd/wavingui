@@ -24,7 +24,7 @@ interface ToastHandle {
  * gallery can render both of its states side by side: a component whose only
  * appearance is behind a click is a component nobody reviews.
  */
-export declare function Toast({ message, undo, action, onDismiss, leaving, }: {
+export declare function Toast({ message, undo, action, onDismiss, leaving, onExited, }: {
     readonly message: string;
     readonly undo?: (() => void) | undefined;
     readonly action?: {
@@ -34,6 +34,8 @@ export declare function Toast({ message, undo, action, onDismiss, leaving, }: {
     readonly onDismiss: () => void;
     /** Playing its exit; set by the provider between dismissal and unmount. */
     readonly leaving?: boolean;
+    /** Called when the exit animation has ended. */
+    readonly onExited?: () => void;
 }): import("react").JSX.Element;
 /**
  * Feedback for actions that used to ask permission first.

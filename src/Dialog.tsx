@@ -1,19 +1,42 @@
-import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { useDialogFocus, useModalPresence } from './modal';
 
-/** `--duration-overlay`, the length of the exit the overlay is kept mounted for. */
-const OVERLAY_MS = 200;
+/**
+ * How long an exit may take before the overlay is removed anyway. The exit
+ * normally ends the overlay itself, on its own `animationend`: a fixed timer of
+ * the animation's length cut it short in WebKitGTK, which starts an animation
+ * a frame or more late, so the overlay vanished while still two thirds opaque
+ * (wavingui#4). This only catches an exit that never reports its end.
+ */
+const EXIT_FALLBACK_MS = 1000;
+
+/**
+ * How long an overlay stays mounted after its exit reports its end. WebKitGTK
+ * runs opacity on its compositor and paints it up to about 150 ms behind the
+ * page's own clock, so `animationend` arrives while the overlay is still drawn
+ * at seven tenths, and removing it then reads as a cut (wavingui#4, measured
+ * per frame in WebKitGTK and in a recording of the shipped shell). It is
+ * invisible by the page's clock and takes no pointer meanwhile, so waiting one
+ * more overlay duration costs nothing a person can see.
+ */
+const EXIT_SETTLE_MS = 200;
 
 /**
  * Keep an overlay on screen until its exit has run.
  *
  * A dialog or toast that unmounts the moment it closes vanishes without the
  * motion it arrived with (wavingui#1). So the caller says whether the overlay
- * is wanted (`open`), and this says whether it is still drawn (`mounted`) and
- * whether it is on its way out (`leaving`, which picks the exit classes). With
- * reduced motion there is nothing to wait for and it unmounts at once.
+ * is wanted (`open`), and this says whether it is still drawn (`mounted`),
+ * whether it is on its way out (`leaving`, which picks the exit classes), and
+ * gives the handler the exiting element calls when its animation ends
+ * (`onExited`). With reduced motion there is nothing to wait for and it
+ * unmounts at once.
  */
-export function usePresence(open: boolean): { readonly mounted: boolean; readonly leaving: boolean } {
+export function usePresence(open: boolean): {
+  readonly mounted: boolean;
+  readonly leaving: boolean;
+  readonly onExited: () => void;
+} {
   const [mounted, setMounted] = useState(open);
   useEffect(() => {
     if (open) {
@@ -21,10 +44,22 @@ export function usePresence(open: boolean): { readonly mounted: boolean; readonl
       return;
     }
     const reduced = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const timer = window.setTimeout(() => setMounted(false), reduced ? 0 : OVERLAY_MS);
+    const timer = window.setTimeout(() => setMounted(false), reduced ? 0 : EXIT_FALLBACK_MS);
     return () => window.clearTimeout(timer);
   }, [open]);
-  return { mounted: mounted || open, leaving: mounted && !open };
+  const [ended, setEnded] = useState(false);
+  useEffect(() => {
+    if (open || !ended) return;
+    const timer = window.setTimeout(() => setMounted(false), EXIT_SETTLE_MS);
+    return () => window.clearTimeout(timer);
+  }, [open, ended]);
+  useEffect(() => {
+    if (open) setEnded(false);
+  }, [open]);
+  const onExited = useCallback(() => {
+    if (!open) setEnded(true);
+  }, [open]);
+  return { mounted: mounted || open, leaving: mounted && !open, onExited };
 }
 
 interface DialogProps {
@@ -53,9 +88,9 @@ interface DialogProps {
  * same way.
  */
 export function Dialog({ open = true, ...props }: DialogProps) {
-  const { mounted, leaving } = usePresence(open);
+  const { mounted, leaving, onExited } = usePresence(open);
   if (!mounted) return null;
-  return <Panel {...props} leaving={leaving} />;
+  return <Panel {...props} leaving={leaving} onExited={onExited} />;
 }
 
 function Panel({
@@ -68,7 +103,8 @@ function Panel({
   leading,
   children,
   leaving,
-}: Omit<DialogProps, 'open'> & { readonly leaving: boolean }) {
+  onExited,
+}: Omit<DialogProps, 'open'> & { readonly leaving: boolean; readonly onExited: () => void }) {
   const panel = useRef<HTMLDivElement>(null);
   useModalPresence();
   useDialogFocus(panel, initialFocus);
@@ -91,6 +127,9 @@ function Panel({
     >
       <div
         ref={panel}
+        onAnimationEnd={(event) => {
+          if (leaving && event.target === event.currentTarget) onExited();
+        }}
         role={role}
         aria-modal="true"
         aria-label={title}
